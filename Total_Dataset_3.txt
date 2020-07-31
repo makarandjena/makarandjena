@@ -1,0 +1,183 @@
+﻿Management	Jobs	Jobs for Management profile by Capgemini, TCS
+Coding	Certifications	Coding Certification course for Python, Machine Learning, Data Science
+Security	Internships	Cyber Security Internships by CISCO
+Hardware	Competitions	Circuit Mania competition by K. J. Somaiya Institute of Technology
+Web Development	Expos	Web Development Expos by D. J. Sanghvi
+Higher Education	Workshops	Robotics and Higher Education Workshops by Ultratech
+IoT	Certifications	IoT Certification course by CISCO
+Coding	Jobs	Jobs for Coders for Coding by CISCO
+Java	Trainings	Java Language Programming Training by QSpiders
+Security	Certifications	Network Security Certification course by McGraw Hill
+Web Development	Internships	Web Development Internships by WordPress
+Management	Jobs	Jobs for Management profile by Capgemini, TCS
+Artificial Intelligence	Expos	Artificial Intelligence Expos by TCS
+Management	Seminars	Seminar on how to do time management
+Python	Hackathons	Hackathon competition by Hackerrank
+Python	Workshops	Python Programming Workshops by Bolt IoT
+Artificial Intelligence	Competitions	Competition on developing Artificial Intelligence by IIT Bombay
+Finance	Fests	Technical Fests for Finance by HSBC
+Mobile Applications	Certifications	Mobile Applications Certification course by Unity
+Higher Education	Internships	Higher Education Internships by YUPS Academy
+C++	Fests	Technical Fests for C++ by Bolt IoT
+Software Architecture	Seminars	Seminar on how to manage software architecture by MobiRoller
+Web Development	Trainings	Web Development Trainings by WordPress
+Python	Seminars	Seminar on how Artificial Intelligence can be developed using Python by UpGrad
+IoT	Expos	IoT Expos by Bolt IoT, CISCO
+Mobile Applications	Competitions	Mobile Application Development competition by Unity
+Finance	Workshops	Finance Management Workshops by HDFC
+Higher Education	Competitions	Higher Education Competitions for Students by BYJU'S
+Java	Seminars	Seminar on how to develop applications using Java by UpGrad
+Other	Seminars	Seminar on how to be resilient in professional life by LinkedIn
+Other	Trainings	Trainings on upgrading new skills by LinkedIn
+Management	Trainings	Management Trainings by L & T
+Security	Talks	Talk on how to enhance and upgrade Cyber Security by CISCO
+Other	Webinars	Webinar on how to pursue your career in IT industry
+C	Expos	C Programming Expos by Bolt IoT
+Java	Expos	Java Programming Expos by QSpiders
+Cloud Computing	Hackathons	Hackathons on Cloud Computing by Hackerrank
+Other	Talks	Talk on how to develop and enhance your personality by TCS
+Python	Courses	A 4-week Programming Course on Python by UpGrad
+C++	Talks	Talk on how C++ can prove to be helpful in designing applications by Google
+Security	Competitions	Competition on Making Cyber Security application by Quick Heal
+Security	Certifications	Certification course on Network Security by Escan
+C	Hackathons	Hackathons on C Programming language by Oracle Company
+Networking	Competitions	Competition on Networking by McGraw Hill
+JavaScript	Jobs	Jobs for JavaScript Developers by Avalon Research
+IoT	Internships	IoT based internships by CISCO and Bolt IoT
+Hardware	Workshops	Hardware Workshops by L & T
+Artificial Intelligence	Workshops	Workshops on Artificial Intelligence by IIT Bombay
+Mobile Applications	Talks	Talk on steps to make, design and launch mobile applications by MobiRoller
+Machine Learning	Fests	Technical fests for Machine Learning by UpGrad
+Blockchain	Fests	Technical Fests for Blockchain by UpGrad
+JavaScript	Internships	JavaScript based Internships by YUPS Academy
+Machine Learning	Webinars	Webinar on algorithms to implement Machine Learning by UpGrad
+Higher Education	Competitions	Competitions on Higher Education in Science Projects by IIT Bombay
+Finance	Trainings	Finance Management Trainings by LIC
+Networking	Talks	Talk on benefits of Networking by CISCO
+Cloud Computing	Talks	Talk on future aspects of Cloud Computing by Google
+Java	Courses	A 4-week Programming Course on Java by UpGrad
+JavaScript	Expos	JavaScript Expos by Dr. D. Y. Patil Polytechnic
+C	Talks	Talk on future aspects of C Programming by Google
+Java	Trainings	Trainings on Java Programming by UpGrad
+Java	Expos	Java Development Expos by TCS
+Finance	Seminars	Seminar on sources of Finance by HSBC
+JavaScript	Competitions	JavaScript Competitions by Hackerrank
+Python	Talks	Talk on how Python can help in deploying AI, ML by Edureka
+Python	Webinars	Webinar on how Python can help industries prosper by UpGrad
+IoT	Webinars	Webinar on future of IoT in the world by Edureka
+Coding	Jobs	Jobs for Coders for Coding by Capgemini
+Networking	Competitions	Competition on Networking by McGraw Hill
+Finance	Competitions	Competition on Managing Finance using limited resources by HDFC
+Cloud Computing	Workshops	Workshops based on Cloud Computing by Google
+Coding	Internships	Coding based Internships by YUPS Academy
+Software Architecture	Internships	Internships on Software Architecture by UpGrad
+IoT	Hackathons	Hackathons on IoT project development by Hackerrank
+Blockchain	Internships	Internships based on Blockchain by UpGrad
+Java	Certifications	Certification course on Java by UpGrad
+Blockchain	Certifications	Certification course on Blockchain by UpGrad
+Development Processes	Certifications	Certification course on Development Processes by UpGrad
+C	Fests	Technical Fests for C by Bolt IoT
+Software Architecture	Certifications	Software Architecture Certification course by Unity
+Python	Webinars	Webinar on how Python works by UpGrad
+Web Development	Internships	Web Development Internships by WordPress
+Security	Jobs	Cyber Security Jobs by Quick Heal
+Cloud Computing	Courses	A 4-week course on cloud computing by Edureka
+C++	Courses	A 4-week course on C++ by Coursera
+Cloud Computing	Expos	Cloud Computing Expos by Microsoft
+Data Science	Hackathons	Hackathons on Data Science by Hackerrank
+Machine Learning	Internships	Internships based on Machine Learning by Internship Studio
+JavaScript	Trainings	Trainings on JavaScript Programming by UpGrad
+Web Development	Workshops	Workshops on Web Development by Internship Studio
+IoT	Courses	A 4-week course on IoT by UpGrad
+Blockchain	Workshops	Workshops on Blockchain by UpGrad
+Cloud Computing	Trainings	Trainings on Cloud Computing by Edureka
+C	Seminars	Seminar on future aspects of C Programming by Google
+Python	Jobs	Jobs for Python Developer by Amazon
+Mobile Applications	Competitions	Mobile Applications Competitions by Hackerrank
+Coding	Seminars	Seminar on how coding helps the softwares developers by UpGrad
+Management	Courses	A 4-week course on Management and its types by UpGrad
+Web Development	Trainings	Web Development Trainings by WordPress
+Networking	Fests	Technical Fest on Computer Networking by CISCO
+Security	Seminars	Seminar on Cyber Security by Escan
+C	Hackathons	Hackathons on C Programming by Hackerrank
+Management	Hackathons	Hackathons on Management Recommender Systems by Hackerrank
+Python	Fests	Technical Fest on Python based applications by Amazon
+Software Architecture	Workshops	Workshop on Software Architecture Development by Unity
+Networking	Certifications	Certification course on Computer Networking by CISCO
+Hardware	Competitions	Circuit Mania competition by K. J. Somaiya Institute of Technology
+C++	Jobs	Jobs for C++ Developers by Avalon Research
+Cloud Computing	Workshops	Workshops based on Cloud Computing by Google
+Other	Expos	Internship Expo by Ft. Agnel Institute of Technology, Bandra
+Blockchain	Seminars	Seminar on future of Blockchain by UpGrad
+Security	Workshops	Workshop on Network Security by Escan
+Networking	Webinars	Webinar on Future of Computer Networking by CISCO
+Coding	Competitions	Coding Competition by Hackerrank
+Machine Learning	Expos	Machine Learning Expos by UpGrad
+Higher Education	Trainings	Higher Education Trainings for Professors by UpGrad
+Coding	Webinars	Webinar on Future aspects of coding by Microsoft
+Finance	Hackathons	Hackathon on Software Development for Finance by Hackerrank
+C++	Workshops	Workshop on C++ Programming by Edureka
+Management	Fests	Technical Fest on Event Management by TCS
+Hardware	Internships	Internship on Hardware Development by Selec Control
+Development Processes	Fests	Technical Fests for Development Processes by UpGrad
+Cloud Computing	Workshops	Workshops based on Cloud Computing by Google
+Other	Jobs	Jobs for Researchers by Avalon Research
+Java	Competitions	Competition based on Java Application development by Hackerrank
+Machine Learning	Internships	Internships based on Machine Learning by Internship Studio
+IoT	Trainings	Trainings on IoT by Edureka
+Python	Hackathons	Hackathon on Python Programming by Hackerrank
+IoT	Trainings	Trainings on IoT by Edureka
+Development Processes	Webinars	Webinar on Development Processes by Siemens
+Higher Education	Expos	Higher Education Expo for Students by Edureka
+IoT	Expos	IoT Expos by Bolt IoT, CISCO
+Coding	Expos	Coding Expos by UpGrad
+Blockchain	Hackathons	Hackathon on Blockchain by UpGrad
+Other	Expos	Internship Expo by Ft. Agnel Institute of Technology, Bandra
+Networking	Jobs	Jobs for Mobile Network Designers by Airtel
+Management	Expos	Internship Expos for Management based profiles by TCS
+Security	Talks	Talk on how to enhance and upgrade Cyber Security by CISCO
+Mobile Applications	Internships	Internships based on Mobile Application Development by MobiRoller
+Data Science	Talks	Talk on Total Python with Data Science by TCS
+Cloud Computing	Seminars	Seminar on future aspects of Cloud Computing by Edureka
+Blockchain	Trainings	Trainings on Blockchain by UpGrad
+Machine Learning	Internships	Internships based on Machine Learning by Internship Studio
+Blockchain	Expos	Internship Expo for Blockchain based profiles by TCS
+Development Processes	Jobs	Jobs for Development Processes by UpGrad
+C++	Internships	Internships based on C++ Programming by Internship Studio
+Web Development	Expos	Web Development Expos by D. J. Sanghvi
+Cloud Computing	Fests	Technical Fest on Cloud Computing by Edureka
+Management	Jobs	Jobs for Management profile by Capgemini, TCS
+Security	Competitions	Competition on Making Cyber Security application by Quick Heal
+C	Competitions	Competition on C language application development by Hackerrank
+Finance	Trainings	Finance Management Trainings by LIC
+Development Processes	Expos	Internship Expo for Development Processes by TCS
+Mobile Applications	Jobs	Jobs for Mobile Application Developers by TCS
+Mobile Applications	Competitions	Mobile Application Development competition by Unity
+Java	Webinars	Webinar on future aspects of Java by UpGrad
+Mobile Applications	Certifications	Mobile Applications Certification course by Unity
+Blockchain	Talks	Talk on benefits of Blockchain by UpGrad
+C++	Internships	C++ Programming based Internships by YUPS Academy
+Other	Webinars	Webinar on how to maintain mental health by Piramal Healthcare
+Networking	Hackathons	Hackathon on Network programming by Hackerrank
+Other	Webinars	Webinar on how to pursue your career in IT industry
+Finance	Internships	Internships based on Financial Management by HSBC
+Development Processes	Expos	Internship Expo for Development Processes by TCS
+Other	Certifications	Certification program on "Work from Home" by UpGrad
+Machine Learning	Jobs	Jobs for Machine Learning Profiles by TCS
+Mobile Applications	Fests	Technical Fest on Mobile Applications by IIT Bombay
+Security	Hackathons	Hackathon on Authentication Security application by Hackerrank
+Coding	Fests	Technical Fest on Coding by TCS
+C++	Talks	Talk on how C++ can prove to be helpful in designing applications by Google
+Development Processes	Seminars	Seminar on Development Processes by Siemens
+Higher Education	Competitions	Higher Education Competitions for Students by BYJU'S
+Data Science	Expos	Internship Expo for Data Science by TCS
+Cloud Computing	Expos	Internship Expo for Cloud Computing by Edureka
+Data Science	Internships	Internships based on Data Science by UpGrad
+Management	Expos	Internship Expos for Management based profiles by TCS
+Networking	Internships	Internships based on Networking by Airtel
+Finance	Seminars	Seminar on sources of Finance by HSBC
+Coding	Courses	A 4-week course on Coding fundamentals by Coursera
+Other	Talks	Talk on how to become an all round performer by UpGrad
+Software Architecture	Talks	Talk on improvements in Software Architecture by Microsoft
+Development Processes	Trainings	Trainings on Development Processes by TCS
+C	Seminars	Seminar on future aspects of C Programming by Google
