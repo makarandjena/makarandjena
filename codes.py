@@ -18,10 +18,10 @@ import io
 column_names= ['Name', 'Domain', 'Event1', 'Event2']
   
   # Get the data 
-#df1 = pd.read_csv(io.BytesIO(uploaded['CCMLEmployeeData_2.txt']), sep='\t', names=column_names)
-df1 = pd.read_csv(io.BytesIO(uploaded['CCMLEmployeeData_2.txt']), sep='\t', names=column_names)
+#df1 = pd.read_csv(io.BytesIO(uploaded['Employees.txt']), sep='\t', names=column_names)
+df1 = pd.read_csv(io.BytesIO(uploaded['Employees.txt']), sep='\t', names=column_names)
       
-      # Check the head of the data 
+  # Check the head of the data 
 df1.head(10)
 
 from google.colab import files
@@ -137,7 +137,7 @@ def get_recommendation(top, event_organizing_all, scores):
 
 get_recommendation(index_spacy, event_organizing_all, list_scores)
 
-event_admin_db = {'Jayanth':['J',5678],'Nirbhey':['N',1357]}
+event_admin_db = {'Jay':['J',5678],'Noel':['N',1357]}
 
 def event_admin_login():
     event_admin_id = input('Enter Admin ID')
