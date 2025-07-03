@@ -1,4 +1,4 @@
-const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1ymOXLTtFg2CLQrhhjXpwreKl_l6YTDPz_ZgmbBu1G5Y/edit';
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1ymOXLTtFg2CLQrhhjXpwreKl_l6YTDPz_ZgmbBu1G5Y';
 const DRIVE_FOLDER_URL = 'https://drive.google.com/drive/u/1/folders/1AmmgHYHEqoz3Hvb-lbgQNQ6VDkKcXT0c';
 
 function getIdFromUrl(url) {
@@ -15,6 +15,7 @@ function processZipFile(fileObj) {
     const parentFolder = DriveApp.getFolderById(folderId);
     const blob = Utilities.newBlob(Utilities.base64Decode(fileObj.fileData), fileObj.mimeType, fileObj.fileName);
     const zipFile = parentFolder.createFile(blob);
+
     const unzipped = Utilities.unzip(blob);
     const extractedFiles = [];
     const results = [];
@@ -27,8 +28,7 @@ function processZipFile(fileObj) {
       extractedFiles.push(savedFile);
     }
 
-    const totalFiles = extractedFiles.length;
-    for (let i = 0; i < totalFiles; i++) {
+    for (let i = 0; i < extractedFiles.length; i++) {
       const file = extractedFiles[i];
       const mime = file.getMimeType();
       let content = '';
@@ -55,16 +55,9 @@ function processZipFile(fileObj) {
         saveToSheet(new Date(), internId, internName, domainName, file.getName(), evaluation, "Skipped");
       }
 
-      // Send partial result to client
-      google.script.run.withSuccessHandler(fileObj.onProgressCallback || function () { }).updateProgress({
-        index: i + 1,
-        total: totalFiles,
-        filename: file.getName(),
-        evaluation: evaluation
-      });
-
       results.push({ filename: file.getName(), evaluation: evaluation });
-      Utilities.sleep(1000); // Simulated delay
+
+      Utilities.sleep(1000); // Delay to simulate processing time
     }
 
     return results;
@@ -79,7 +72,7 @@ function extractTextFromPdf(file) {
   try {
     return file.getBlob().getDataAsString();
   } catch (e) {
-    return "";
+    return "[Error extracting PDF content]";
   }
 }
 
@@ -99,7 +92,8 @@ function extractTextFromExcel(file) {
     const ss = SpreadsheetApp.openById(converted.id);
     let allText = "";
     ss.getSheets().forEach(sheet => {
-      sheet.getDataRange().getValues().forEach(row => {
+      const data = sheet.getDataRange().getValues();
+      data.forEach(row => {
         allText += row.join(' ') + '\n';
       });
     });
@@ -126,6 +120,7 @@ ${content.slice(0, 3000)}
 `;
 
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+
   const requestBody = {
     contents: [{ parts: [{ text: fullPrompt }] }]
   };
