@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+    h1 {
+      color: #4285F4;
+    }
+    form, #results-container {
+      border: 1px solid #ddd;
+      padding: 25px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 15px;
+    }
+    input, textarea {
+      width: 98%;
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    input[type="submit"] {
+      background-color: #34A853;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    .loading {
+      text-align: center;
+      font-size: 1.2em;
+      margin-top: 20px;
+    }
+    .result-card {
+      background-color: #f9f9f9;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+    }
+    .result-card h3 {
+      margin-top: 0;
+    }
+    .result-card pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      background: #fff;
+      padding: 10px;
+      border: 1px solid #eee;
+    }
+    #progress {
+      margin-top: 10px;
+      font-size: 1em;
+      text-align: center;
+    }
+    #download-btn {
+      display: none;
+      margin: 20px auto;
+      text-align: center;
+    }
+    #download-btn button {
+      background-color: #fbbc05;
+      border: none;
+      padding: 10px 20px;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Document Zip File Evaluator</h1>
+  <p>Upload a .zip file containing documents (.PDF, .DOCX, .XLSX, .TXT) for AI-based evaluation.</p>
+
+  <form id="upload-form">
+    <label for="zip-file">1. Select a .zip file to upload:</label>
+    <input type="file" id="zip-file" name="zipFile" accept=".zip" required>
+
+    <label for="prompt">2. Provide Evaluation Instructions:</label>
+    <textarea id="prompt" name="prompt" rows="5" required>
+Summarize the document in 3 key points.
+Check if a human signature or the phrase "signed by" is present.
+Estimate the likelihood of plagiarism (original, matched, copied).
+    </textarea>
+
+    <input type="submit" value="Upload and Evaluate">
+  </form>
+
+  <div id="loading" class="loading" style="display: none;">
+    <p>🔄 Uploading and processing... Please wait.</p>
+    <div id="progress"></div>
+  </div>
+
+  <div id="results-container" style="display: none;">
+    <h2>Evaluation Results</h2>
+    <div id="results-output"></div>
+    <div id="download-btn">
+      <button onclick="downloadResults()">⬇ Download All Results</button>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('upload-form');
+    const fileInput = document.getElementById('zip-file');
+    const loadingDiv = document.getElementById('loading');
+    const resultsContainer = document.getElementById('results-container');
+    const resultsOutput = document.getElementById('results-output');
+    const progressDiv = document.getElementById('progress');
+    const downloadBtn = document.getElementById('download-btn');
+
+    let resultTextArray = [];
+
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const file = fileInput.files[0];
+      if (!file) {
+        alert("Please select a file.");
+        return;
+      }
+
+      loadingDiv.style.display = 'block';
+      progressDiv.textContent = '';
+      resultsContainer.style.display = 'none';
+      downloadBtn.style.display = 'none';
+      resultsOutput.innerHTML = '';
+      resultTextArray = [];
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const fileData = e.target.result.split(',')[1];
+        const formObject = {
+          fileName: file.name,
+          mimeType: file.type,
+          fileData: fileData,
+          prompt: document.getElementById('prompt').value
+        };
+
+        google.script.run
+          .withSuccessHandler(showResults)
+          .withFailureHandler(showError)
+          .processZipFile(formObject);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function showResults(results) {
+      loadingDiv.style.display = 'none';
+      resultsOutput.innerHTML = '';
+      resultTextArray = [];
+
+      results.forEach((result, index) => {
+        const card = document.createElement('div');
+        card.className = 'result-card';
+        card.innerHTML = `<h3>${result.filename}</h3><pre>${result.evaluation}</pre>`;
+        resultsOutput.appendChild(card);
+
+        resultTextArray.push(`File: ${result.filename}\n\n${result.evaluation}\n\n-----------------------------\n`);
+        progressDiv.textContent = `Processed ${index + 1} of ${results.length} files...`;
+      });
+
+      resultsContainer.style.display = 'block';
+      downloadBtn.style.display = 'block';
+      progressDiv.textContent = `✅ All ${results.length} files processed.`;
+    }
+
+    function showError(error) {
+      loadingDiv.style.display = 'none';
+      alert("An error occurred: " + error.message);
+    }
+
+    function downloadResults() {
+      const blob = new Blob([resultTextArray.join("\n")], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "evaluation_results.txt";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
+</body>
+</html>
