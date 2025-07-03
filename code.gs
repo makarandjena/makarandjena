@@ -1,5 +1,5 @@
-const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1ymOXLTtFg2CLQrhhjXpwreKl_l6YTDPz_ZgmbBu1G5Y/edit?gid=0#gid=0';
-const DRIVE_FOLDER_URL = 'https://drive.google.com/drive/folders/1AmmgHYHEqoz3Hvb-lbgQNQ6VDkKcXT0c?usp=sharing';
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1ymOXLTtFg2CLQrhhjXpwreKl_l6YTDPz_ZgmbBu1G5Y/edit';
+const DRIVE_FOLDER_URL = 'https://drive.google.com/drive/u/1/folders/1AmmgHYHEqoz3Hvb-lbgQNQ6VDkKcXT0c';
 
 function getIdFromUrl(url) {
   return url.match(/[-\w]{25,}/)[0];
@@ -13,20 +13,23 @@ function processZipFile(fileObj) {
   try {
     const folderId = getIdFromUrl(DRIVE_FOLDER_URL);
     const parentFolder = DriveApp.getFolderById(folderId);
-
     const blob = Utilities.newBlob(Utilities.base64Decode(fileObj.fileData), fileObj.mimeType, fileObj.fileName);
     const zipFile = parentFolder.createFile(blob);
-
     const unzipped = Utilities.unzip(blob);
     const extractedFiles = [];
     const results = [];
+
+    const filename = fileObj.fileName;
+    const [internId, internName, domainName] = filename.replace('.zip', '').split('--').map(s => s.trim());
 
     for (const f of unzipped) {
       const savedFile = parentFolder.createFile(f);
       extractedFiles.push(savedFile);
     }
 
-    for (const file of extractedFiles) {
+    const totalFiles = extractedFiles.length;
+    for (let i = 0; i < totalFiles; i++) {
+      const file = extractedFiles[i];
       const mime = file.getMimeType();
       let content = '';
       let supported = true;
@@ -43,35 +46,38 @@ function processZipFile(fileObj) {
         supported = false;
       }
 
+      let evaluation;
       if (supported && content.trim() !== '') {
-        const evaluation = analyzeWithGemini(file.getName(), content, fileObj.prompt);
-        results.push({
-          filename: file.getName(),
-          evaluation: evaluation
-        });
-        saveToSheet(file.getName(), evaluation, "Success");
+        evaluation = analyzeWithGemini(file.getName(), content, fileObj.prompt);
+        saveToSheet(new Date(), internId, internName, domainName, file.getName(), evaluation, "Success");
       } else {
-        results.push({
-          filename: file.getName(),
-          evaluation: "Unsupported or empty file type for evaluation."
-        });
-        saveToSheet(file.getName(), "Skipped: Not supported", "Skipped");
+        evaluation = "Unsupported or empty file type.";
+        saveToSheet(new Date(), internId, internName, domainName, file.getName(), evaluation, "Skipped");
       }
+
+      // Send partial result to client
+      google.script.run.withSuccessHandler(fileObj.onProgressCallback || function () { }).updateProgress({
+        index: i + 1,
+        total: totalFiles,
+        filename: file.getName(),
+        evaluation: evaluation
+      });
+
+      results.push({ filename: file.getName(), evaluation: evaluation });
+      Utilities.sleep(1000); // Simulated delay
     }
 
     return results;
 
   } catch (e) {
-    Logger.log("Error: " + e.toString());
-    saveToSheet("Unknown", e.toString(), "Error");
+    saveToSheet(new Date(), "Unknown", "Unknown", "Unknown", "Unknown", e.toString(), "Error");
     throw new Error("Processing failed: " + e.message);
   }
 }
 
 function extractTextFromPdf(file) {
   try {
-    const blob = file.getBlob();
-    return blob.getDataAsString();
+    return file.getBlob().getDataAsString();
   } catch (e) {
     return "";
   }
@@ -79,10 +85,7 @@ function extractTextFromPdf(file) {
 
 function extractTextFromDocx(file) {
   try {
-    const docFile = DriveApp.getFileById(file.getId());
-    const converted = Drive.Files.copy({}, docFile.getId(), {
-      convert: true
-    });
+    const converted = Drive.Files.copy({}, file.getId(), { convert: true });
     const doc = DocumentApp.openById(converted.id);
     return doc.getBody().getText();
   } catch (e) {
@@ -92,20 +95,14 @@ function extractTextFromDocx(file) {
 
 function extractTextFromExcel(file) {
   try {
-    const sheetFile = DriveApp.getFileById(file.getId());
-    const converted = Drive.Files.copy({}, sheetFile.getId(), {
-      convert: true
-    });
+    const converted = Drive.Files.copy({}, file.getId(), { convert: true });
     const ss = SpreadsheetApp.openById(converted.id);
     let allText = "";
-
-    const sheets = ss.getSheets();
-    for (const s of sheets) {
-      const data = s.getDataRange().getValues();
-      data.forEach(row => {
+    ss.getSheets().forEach(sheet => {
+      sheet.getDataRange().getValues().forEach(row => {
         allText += row.join(' ') + '\n';
       });
-    }
+    });
     return allText;
   } catch (e) {
     return "[Error extracting Excel content]";
@@ -129,11 +126,8 @@ ${content.slice(0, 3000)}
 `;
 
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
-
   const requestBody = {
-    contents: [{
-      parts: [{ text: fullPrompt }]
-    }]
+    contents: [{ parts: [{ text: fullPrompt }] }]
   };
 
   const options = {
@@ -146,14 +140,13 @@ ${content.slice(0, 3000)}
   try {
     const response = UrlFetchApp.fetch(apiUrl, options);
     const responseData = JSON.parse(response.getContentText());
-    return responseData.candidates[0].content.parts[0].text || "No response from Gemini.";
+    return responseData.candidates?.[0]?.content?.parts?.[0]?.text || "No response from Gemini.";
   } catch (e) {
     return "Gemini API error: " + e.message;
   }
 }
 
-function saveToSheet(name, evaluation, status) {
-  const sheetId = getIdFromUrl(SHEET_URL);
-  const sheet = SpreadsheetApp.openById(sheetId).getActiveSheet();
-  sheet.appendRow([new Date(), name, evaluation, status]);
+function saveToSheet(date, internId, internName, domainName, fileName, evaluation, status) {
+  const sheet = SpreadsheetApp.openById(getIdFromUrl(SHEET_URL)).getActiveSheet();
+  sheet.appendRow([date, internId, internName, domainName, fileName, evaluation, status]);
 }
