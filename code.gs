@@ -1,147 +1,40 @@
-const SHEET_URL = 'SHEET_URL';
-const DRIVE_FOLDER_URL = 'DRIVE_FOLDER_URL';
+// ======= CONFIG =======
+const FOLDER_ID = "1dCoA9a4Hvo0pi3KWz9nAH04wy3zJ343A";
+const SHEET_ID = "145qozjhpfOUM77tfv49b2gN-lBvmi6CqMvKv6eRDLMs";  // Optional, not used in this base version
 
-function getIdFromUrl(url) {
-  return url.match(/[-\w]{25,}/)[0];
-}
-
+// ======= DO GET =======
 function doGet() {
-  return HtmlService.createHtmlOutputFromFile('Index');
+  return HtmlService.createHtmlOutputFromFile('index')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
-function processZipFile(fileObj) {
-  try {
-    const folderId = getIdFromUrl(DRIVE_FOLDER_URL);
-    const parentFolder = DriveApp.getFolderById(folderId);
-    const blob = Utilities.newBlob(Utilities.base64Decode(fileObj.fileData), fileObj.mimeType, fileObj.fileName);
-    const zipFile = parentFolder.createFile(blob);
-
-    const unzipped = Utilities.unzip(blob);
-    const extractedFiles = [];
-    const results = [];
-
-    const filename = fileObj.fileName;
-    const [internId, internName, domainName] = filename.replace('.zip', '').split('--').map(s => s.trim());
-
-    for (const f of unzipped) {
-      const savedFile = parentFolder.createFile(f);
-      extractedFiles.push(savedFile);
-    }
-
-    for (let i = 0; i < extractedFiles.length; i++) {
-      const file = extractedFiles[i];
-      const mime = file.getMimeType();
-      let content = '';
-      let supported = true;
-
-      if (mime.includes('text')) {
-        content = file.getBlob().getDataAsString();
-      } else if (mime === "application/pdf") {
-        content = extractTextFromPdf(file);
-      } else if (mime === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
-        content = extractTextFromDocx(file);
-      } else if (mime === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
-        content = extractTextFromExcel(file);
-      } else {
-        supported = false;
-      }
-
-      let evaluation;
-      if (supported && content.trim() !== '') {
-        evaluation = analyzeWithGemini(file.getName(), content, fileObj.prompt);
-        saveToSheet(new Date(), internId, internName, domainName, file.getName(), evaluation, "Success");
-      } else {
-        evaluation = "Unsupported or empty file type.";
-        saveToSheet(new Date(), internId, internName, domainName, file.getName(), evaluation, "Skipped");
-      }
-
-      results.push({ filename: file.getName(), evaluation: evaluation });
-
-      Utilities.sleep(1000); // Delay to simulate processing time
-    }
-
-    return results;
-
-  } catch (e) {
-    saveToSheet(new Date(), "Unknown", "Unknown", "Unknown", "Unknown", e.toString(), "Error");
-    throw new Error("Processing failed: " + e.message);
-  }
+// ======= INCLUDE HTML PARTIALS IF NEEDED =======
+function include(filename) {
+  return HtmlService.createHtmlOutputFromFile(filename).getContent();
 }
 
-function extractTextFromPdf(file) {
+// ======= UPLOAD AND EXTRACT ZIP =======
+function uploadAndExtractZip(base64Zip, filename) {
   try {
-    return file.getBlob().getDataAsString();
-  } catch (e) {
-    return "[Error extracting PDF content]";
-  }
-}
+    const blob = Utilities.newBlob(Utilities.base64Decode(base64Zip), 'application/zip', filename);
+    const folder = DriveApp.getFolderById(FOLDER_ID);
+    const zipFiles = Utilities.unzip(blob);
 
-function extractTextFromDocx(file) {
-  try {
-    const converted = Drive.Files.copy({}, file.getId(), { convert: true });
-    const doc = DocumentApp.openById(converted.id);
-    return doc.getBody().getText();
-  } catch (e) {
-    return "[Error extracting Word content]";
-  }
-}
-
-function extractTextFromExcel(file) {
-  try {
-    const converted = Drive.Files.copy({}, file.getId(), { convert: true });
-    const ss = SpreadsheetApp.openById(converted.id);
-    let allText = "";
-    ss.getSheets().forEach(sheet => {
-      const data = sheet.getDataRange().getValues();
-      data.forEach(row => {
-        allText += row.join(' ') + '\n';
-      });
+    let fileNames = [];
+    zipFiles.forEach(fileBlob => {
+      const createdFile = folder.createFile(fileBlob);
+      fileNames.push(createdFile.getName());
     });
-    return allText;
-  } catch (e) {
-    return "[Error extracting Excel content]";
+
+    return {
+      success: true,
+      message: "ZIP extracted successfully.",
+      files: fileNames
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: "Error: " + error.message
+    };
   }
-}
-
-function analyzeWithGemini(filename, content, prompt) {
-  const apiKey = PropertiesService.getScriptProperties().getProperty('API_KEY');
-  if (!apiKey) return "API Key missing.";
-
-  const fullPrompt = `
-**File:** ${filename}
-
-**Content (first 3000 chars):**
-${content.slice(0, 3000)}
-
-**Tasks:**
-1. Summarize the document in 3 key points.
-2. State if a signature or 'signed by' is found.
-3. Estimate plagiarism risk: Likely Original / Possible Match / Copied.
-`;
-
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
-
-  const requestBody = {
-    contents: [{ parts: [{ text: fullPrompt }] }]
-  };
-
-  const options = {
-    method: 'post',
-    contentType: 'application/json',
-    payload: JSON.stringify(requestBody),
-    muteHttpExceptions: true
-  };
-
-  try {
-    const response = UrlFetchApp.fetch(apiUrl, options);
-    const responseData = JSON.parse(response.getContentText());
-    return responseData.candidates?.[0]?.content?.parts?.[0]?.text || "No response from Gemini.";
-  } catch (e) {
-    return "Gemini API error: " + e.message;
-  }
-}
-
-function saveToSheet(date, internId, internName, domainName, fileName, evaluation, status) {
-  const sheet = SpreadsheetApp.openById(getIdFromUrl(SHEET_URL)).getActiveSheet();
-  sheet.appendRow([date, internId, internName, domainName, fileName, evaluation, status]);
 }
