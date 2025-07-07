@@ -7,50 +7,53 @@
         font-family: Arial, sans-serif;
         max-width: 600px;
         margin: 40px auto;
-        padding: 20px;
-        border: 1px solid #ccc;
+        padding: 25px;
+        border: 1px solid #ddd;
         border-radius: 10px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        background-color: #fefefe;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       }
       h2 {
         text-align: center;
+        color: #333;
       }
       input[type="file"] {
-        margin-top: 20px;
+        display: block;
+        margin: 20px auto;
       }
       button {
-        margin-top: 20px;
+        display: block;
+        margin: 10px auto;
         padding: 10px 20px;
-        border: none;
-        background-color: #4CAF50;
+        background-color: #4285F4;
         color: white;
-        font-size: 16px;
+        border: none;
         border-radius: 5px;
+        font-size: 16px;
         cursor: pointer;
       }
       button:hover {
-        background-color: #45a049;
+        background-color: #3367D6;
       }
       .result {
         margin-top: 30px;
-        background: #f9f9f9;
         padding: 15px;
         border-radius: 8px;
+        background-color: #f1f1f1;
       }
       ul {
-        margin-top: 10px;
+        padding-left: 20px;
       }
     </style>
   </head>
   <body>
-    <h2>Project Evaluation - Upload ZIP File</h2>
-    <input type="file" id="zipFile" accept=".zip" />
-    <br/>
-    <button onclick="handleUpload()">Upload & Extract</button>
-    
+    <h2>Upload & Analyze ZIP File</h2>
+    <input type="file" id="zipFile" accept=".zip">
+    <button onclick="handleUpload()">Upload ZIP</button>
+
     <div class="result" id="result" style="display:none;">
-      <h3>Analysis Result:</h3>
-      <p id="message"></p>
+      <h3>Extraction Result:</h3>
+      <p id="statusMsg"></p>
       <ul id="fileList"></ul>
     </div>
 
@@ -58,35 +61,35 @@
       function handleUpload() {
         const fileInput = document.getElementById('zipFile');
         const file = fileInput.files[0];
+
         if (!file) {
-          alert('Please select a ZIP file first.');
+          alert("Please select a ZIP file to upload.");
           return;
         }
 
         const reader = new FileReader();
-        reader.onload = function(e) {
-          const dataUrl = e.target.result;
-          const base64 = dataUrl.split(',')[1];  // Remove metadata
+        reader.onload = function (e) {
+          const base64Data = e.target.result.split(',')[1];
 
           google.script.run.withSuccessHandler(displayResult)
-            .uploadAndExtractZip(base64, file.name);
+            .uploadAndExtractZip(base64Data, file.name);
         };
         reader.readAsDataURL(file);
       }
 
-      function displayResult(result) {
+      function displayResult(response) {
         const resultDiv = document.getElementById('result');
-        const message = document.getElementById('message');
+        const statusMsg = document.getElementById('statusMsg');
         const fileList = document.getElementById('fileList');
 
         resultDiv.style.display = 'block';
-        message.textContent = result.message;
+        statusMsg.textContent = response.message;
         fileList.innerHTML = '';
 
-        if (result.success) {
-          result.files.forEach(name => {
+        if (response.success) {
+          response.files.forEach(fileName => {
             const li = document.createElement('li');
-            li.textContent = name;
+            li.textContent = fileName;
             fileList.appendChild(li);
           });
         }
