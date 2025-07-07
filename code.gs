@@ -1,5 +1,5 @@
-const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1ymOXLTtFg2CLQrhhjXpwreKl_l6YTDPz_ZgmbBu1G5Y';
-const DRIVE_FOLDER_URL = 'https://drive.google.com/drive/u/1/folders/1AmmgHYHEqoz3Hvb-lbgQNQ6VDkKcXT0c';
+const SHEET_URL = 'SHEET_URL';
+const DRIVE_FOLDER_URL = 'DRIVE_FOLDER_URL';
 
 function getIdFromUrl(url) {
   return url.match(/[-\w]{25,}/)[0];
@@ -104,7 +104,7 @@ function extractTextFromExcel(file) {
 }
 
 function analyzeWithGemini(filename, content, prompt) {
-  const apiKey = PropertiesService.getScriptProperties().getProperty('AIzaSyBZDS98aad6s-Qtn61S_6Xg4_cd1Mv4vy8');
+  const apiKey = PropertiesService.getScriptProperties().getProperty('API_KEY');
   if (!apiKey) return "API Key missing.";
 
   const fullPrompt = `
