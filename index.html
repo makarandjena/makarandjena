@@ -3,68 +3,93 @@
   <head>
     <base target="_top">
     <style>
-      body { font-family: Arial; padding: 20px; }
-      input, textarea, button { margin: 10px 0; width: 100%; max-width: 500px; }
-      #progressContainer { width: 100%; background: #f0f0f0; border-radius: 5px; margin-top: 10px; }
-      #progressBar { height: 20px; width: 0%; background: #4CAF50; text-align: center; color: white; border-radius: 5px; }
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      h2 {
+        text-align: center;
+      }
+      input[type="file"] {
+        margin-top: 20px;
+      }
+      button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        border: none;
+        background-color: #4CAF50;
+        color: white;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+      .result {
+        margin-top: 30px;
+        background: #f9f9f9;
+        padding: 15px;
+        border-radius: 8px;
+      }
+      ul {
+        margin-top: 10px;
+      }
     </style>
   </head>
   <body>
-    <h2>Intern Project Evaluation</h2>
-    <input type="file" id="zipFile" accept=".zip"><br>
-    <textarea id="customPrompt" rows="4" placeholder="Optional prompt for Gemini analysis..."></textarea><br>
-    <button onclick="uploadFile()">Upload & Analyze</button>
-
-    <div id="progressContainer">
-      <div id="progressBar">0%</div>
+    <h2>Project Evaluation - Upload ZIP File</h2>
+    <input type="file" id="zipFile" accept=".zip" />
+    <br/>
+    <button onclick="handleUpload()">Upload & Extract</button>
+    
+    <div class="result" id="result" style="display:none;">
+      <h3>Analysis Result:</h3>
+      <p id="message"></p>
+      <ul id="fileList"></ul>
     </div>
 
-    <div id="status"></div>
-
     <script>
-      function uploadFile() {
-        const fileInput = document.getElementById("zipFile");
+      function handleUpload() {
+        const fileInput = document.getElementById('zipFile');
         const file = fileInput.files[0];
-        const prompt = document.getElementById("customPrompt").value;
         if (!file) {
-          document.getElementById("status").innerText = "Please select a ZIP file.";
+          alert('Please select a ZIP file first.');
           return;
         }
 
         const reader = new FileReader();
-        reader.onload = function (e) {
-          const fileData = e.target.result.split(',')[1];
-          document.getElementById("status").innerHTML = "";
-          document.getElementById("progressBar").style.width = '0%';
-          document.getElementById("progressBar").innerText = '0%';
+        reader.onload = function(e) {
+          const dataUrl = e.target.result;
+          const base64 = dataUrl.split(',')[1];  // Remove metadata
 
-          google.script.run
-            .withSuccessHandler(function (results) {
-              const output = results.map(r => `<p><strong>${r.filename}</strong><br>${r.evaluation}</p>`).join('');
-              document.getElementById("status").innerHTML = "<hr><b>Analysis Complete:</b><br>" + output;
-            })
-            .withFailureHandler(function (err) {
-              document.getElementById("status").innerText = "Error: " + err.message;
-            })
-            .processZipFile({
-              fileData: fileData,
-              mimeType: file.type,
-              fileName: file.name,
-              prompt: prompt,
-              onProgressCallback: google.script.run.withSuccessHandler(updateProgress)
-            });
+          google.script.run.withSuccessHandler(displayResult)
+            .uploadAndExtractZip(base64, file.name);
         };
         reader.readAsDataURL(file);
       }
 
-      function updateProgress(progress) {
-        const percent = Math.round((progress.index / progress.total) * 100);
-        const progressBar = document.getElementById("progressBar");
-        progressBar.style.width = percent + "%";
-        progressBar.innerText = percent + "%";
+      function displayResult(result) {
+        const resultDiv = document.getElementById('result');
+        const message = document.getElementById('message');
+        const fileList = document.getElementById('fileList');
 
-        const status = document.getElementById("status");
-        status.innerHTML += `<p><strong>${progress.filename}</strong> processed.</p>`;
+        resultDiv.style.display = 'block';
+        message.textContent = result.message;
+        fileList.innerHTML = '';
+
+        if (result.success) {
+          result.files.forEach(name => {
+            const li = document.createElement('li');
+            li.textContent = name;
+            fileList.appendChild(li);
+          });
+        }
       }
     </script>
   </body>
