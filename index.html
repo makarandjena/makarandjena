@@ -3,96 +3,73 @@
   <head>
     <base target="_top">
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        max-width: 600px;
-        margin: 40px auto;
-        padding: 25px;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        background-color: #fefefe;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      }
-      h2 {
-        text-align: center;
-        color: #333;
-      }
-      input[type="file"] {
-        display: block;
-        margin: 20px auto;
-      }
-      button {
-        display: block;
-        margin: 10px auto;
-        padding: 10px 20px;
-        background-color: #4285F4;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        font-size: 16px;
-        cursor: pointer;
-      }
-      button:hover {
-        background-color: #3367D6;
-      }
-      .result {
-        margin-top: 30px;
-        padding: 15px;
-        border-radius: 8px;
-        background-color: #f1f1f1;
-      }
-      ul {
-        padding-left: 20px;
-      }
+      body { font-family: Arial, sans-serif; padding: 20px; }
+      h2 { color: #333; }
+      .section { margin-bottom: 20px; }
+      .result { background: #f5f5f5; padding: 10px; border-radius: 5px; }
+      button { padding: 10px 20px; margin-top: 10px; cursor: pointer; }
+      .btn-group { margin-top: 20px; }
     </style>
   </head>
   <body>
-    <h2>Upload & Analyze ZIP File</h2>
-    <input type="file" id="zipFile" accept=".zip">
-    <button onclick="handleUpload()">Upload ZIP</button>
+    <h2>Intern Project Evaluation</h2>
+    <div class="section">
+      <form id="uploadForm">
+        <label>Select ZIP File:</label>
+        <input type="file" name="zipFile" accept=".zip" required />
+        <div class="btn-group">
+          <button type="submit">Scan & Analyze</button>
+        </div>
+      </form>
+    </div>
 
-    <div class="result" id="result" style="display:none;">
-      <h3>Extraction Result:</h3>
-      <p id="statusMsg"></p>
-      <ul id="fileList"></ul>
+    <div id="result" class="section" style="display:none;">
+      <h3>Evaluation Result</h3>
+      <div class="result" id="evaluationResult"></div>
+      <div class="btn-group">
+        <button onclick="saveDetails()">Save Details to Google Sheet</button>
+        <button onclick="window.print()">Print Report</button>
+      </div>
     </div>
 
     <script>
-      function handleUpload() {
-        const fileInput = document.getElementById('zipFile');
+      let internData = {};
+
+      document.getElementById("uploadForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const fileInput = document.querySelector('input[name="zipFile"]');
         const file = fileInput.files[0];
 
         if (!file) {
-          alert("Please select a ZIP file to upload.");
+          alert("Please select a ZIP file.");
           return;
         }
 
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          const base64Data = e.target.result.split(',')[1];
-
-          google.script.run.withSuccessHandler(displayResult)
-            .uploadAndExtractZip(base64Data, file.name);
+        const fr = new FileReader();
+        fr.onload = function() {
+          const bytes = [...new Uint8Array(fr.result)];
+          google.script.run.withSuccessHandler(displayResult).uploadZipFile({ zipFile: { bytes, name: file.name } });
         };
-        reader.readAsDataURL(file);
+        fr.readAsArrayBuffer(file);
+      });
+
+      function displayResult(data) {
+        internData = data;
+        const resultDiv = document.getElementById("evaluationResult");
+        resultDiv.innerHTML = `
+          <strong>Intern ID:</strong> ${data.internId}<br>
+          <strong>Name:</strong> ${data.internName}<br>
+          <strong>Domain:</strong> ${data.domain}<br>
+          <strong>Documentation Quality:</strong> <b>${data.docQuality}</b><br>
+          <strong>Files Extracted:</strong> <ul>${data.extractedFiles.map(f => `<li>${f}</li>`).join('')}</ul>
+        `;
+        document.getElementById("result").style.display = "block";
       }
 
-      function displayResult(response) {
-        const resultDiv = document.getElementById('result');
-        const statusMsg = document.getElementById('statusMsg');
-        const fileList = document.getElementById('fileList');
-
-        resultDiv.style.display = 'block';
-        statusMsg.textContent = response.message;
-        fileList.innerHTML = '';
-
-        if (response.success) {
-          response.files.forEach(fileName => {
-            const li = document.createElement('li');
-            li.textContent = fileName;
-            fileList.appendChild(li);
-          });
-        }
+      function saveDetails() {
+        google.script.run.withSuccessHandler(() => {
+          alert("Details saved to Google Sheet.");
+        }).saveToSheet(internData);
       }
     </script>
   </body>
