@@ -5,11 +5,10 @@ const fs = require('fs');
 const path = require('path');
 
 const { analyzeDocumentation } = require('./analyzeDoc');
-const { uploadToDrive } = require('./googleDrive');
-const { appendToSheet } = require('./googleSheets');
+const { uploadToDrive } = require('https://drive.google.com/drive/u/0/folders/1dCoA9a4Hvo0pi3KWz9nAH04wy3zJ343A');
+const { appendToSheet } = require('https://docs.google.com/spreadsheets/d/145qozjhpfOUM77tfv49b2gN-lBvmi6CqMvKv6eRDLMs/edit?gid=0#gid=0');
 
 const app = express();
-const PORT = 5000;
 
 app.use(cors());
 app.use(express.json());
