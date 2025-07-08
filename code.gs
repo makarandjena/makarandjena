@@ -1,7 +1,6 @@
-// Backend Script (Apps Script)
-
 var folderId = '1dCoA9a4Hvo0pi3KWz9nAH04wy3zJ343A'; // Replace with your Google Drive folder ID
-var sheetName = 'Project Evaluation New App'; // Your Google Sheet name
+var geminiApiKey = 'AIzaSyDemXqxd-FSgbT8kOfa4Y5c4_eyMjfodCY'; // Replace with your Gemini API key
+var sheetName = 'Project Evaluation New App';
 
 function doGet() {
   return HtmlService.createHtmlOutputFromFile('index');
@@ -18,9 +17,11 @@ function uploadZipFile(formObject) {
     docQuality: '',
     extractedFiles: []
   };
-  
-  // Create a subfolder for the extracted contents
+
+  // Create subfolder
   var subfolder = DriveApp.getFolderById(folderId).createFolder(blob.getName().replace('.zip', ''));
+
+  var combinedText = '';
 
   unzippedFiles.forEach(function(file) {
     var uploadedFile = subfolder.createFile(file);
@@ -28,33 +29,52 @@ function uploadZipFile(formObject) {
 
     if (file.getContentType().includes('text')) {
       var content = file.getDataAsString();
-
-      // Extracting values assuming a specific format
-      var idMatch = content.match(/Intern ID[:\-]?\s*(\w+)/i);
-      var nameMatch = content.match(/Name[:\-]?\s*(.+)/i);
-      var domainMatch = content.match(/Domain[:\-]?\s*(.+)/i);
-
-      if (idMatch) details.internId = idMatch[1];
-      if (nameMatch) details.internName = nameMatch[1];
-      if (domainMatch) details.domain = domainMatch[1];
-
-      // Evaluate document quality (naive heuristic example)
-      var wordCount = content.split(/\s+/).length;
-      if (wordCount < 200) {
-        details.docQuality = "Not Satisfactory";
-      } else if (wordCount < 400) {
-        details.docQuality = "Satisfactory";
-      } else if (wordCount < 600) {
-        details.docQuality = "Fair";
-      } else if (wordCount < 800) {
-        details.docQuality = "Good";
-      } else {
-        details.docQuality = "Excellent";
-      }
+      combinedText += content + '\n';
     }
   });
 
+  // Use Gemini API for evaluation
+  var analysis = callGeminiAPI(combinedText);
+  details.internId = analysis.internId || '';
+  details.internName = analysis.internName || '';
+  details.domain = analysis.domain || '';
+  details.docQuality = analysis.docQuality || 'Unknown';
+
   return details;
+}
+
+function callGeminiAPI(content) {
+  var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=' + geminiApiKey;
+
+  var payload = {
+    contents: [{
+      parts: [{
+        text: "Analyze the following documentation text and return a JSON object with the following structure:\n\n{\n  \"internId\": \"\",\n  \"internName\": \"\",\n  \"domain\": \"\",\n  \"docQuality\": \"Not Satisfactory / Satisfactory / Fair / Good / Excellent\"\n}\n\nText:\n" + content
+      }]
+    }]
+  };
+
+  var options = {
+    method: 'post',
+    contentType: 'application/json',
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  };
+
+  var response = UrlFetchApp.fetch(url, options);
+  var result = JSON.parse(response.getContentText());
+
+  try {
+    var geminiText = result.candidates[0].content.parts[0].text;
+    return JSON.parse(geminiText);
+  } catch (e) {
+    return {
+      internId: '',
+      internName: '',
+      domain: '',
+      docQuality: 'Unable to evaluate'
+    };
+  }
 }
 
 function saveToSheet(data) {
