@@ -1,124 +1,87 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <base target="_top">
-    <style>
-      body {
-        font-family: 'Segoe UI', sans-serif;
-        background: #f9f9f9;
-        padding: 20px;
-        color: #333;
-      }
-      h2 {
-        color: #2c3e50;
-      }
-      .card {
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        max-width: 700px;
-        margin: auto;
-      }
-      input[type="file"] {
-        margin-bottom: 15px;
-      }
-      .btn {
-        padding: 10px 20px;
-        background: #3498db;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        margin: 5px 10px 0 0;
-        cursor: pointer;
-      }
-      .btn:hover {
-        background: #2980b9;
-      }
-      .result {
-        margin-top: 20px;
-        padding: 15px;
-        background: #ecf0f1;
-        border-radius: 5px;
-      }
-      @media print {
-        body * {
-          visibility: hidden;
-        }
-        .card, .card * {
-          visibility: visible;
-        }
-        .card {
-          position: absolute;
-          left: 0;
-          top: 0;
-        }
-        .btn, input {
-          ;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="card">
-      <h2>Intern Project Evaluation</h2>
-      <form id="uploadForm">
-        <input type="file" name="zipFile" accept=".zip" required />
-        <button class="btn" type="submit">Scan & Analyze</button>
-        <button class="btn" onclick="saveDetails()">Save Details to Google Sheet</button>
-        <button class="btn" onclick="window.print()">Print Report</button>
-      </form>
+<head>
+  <meta charset="UTF-8">
+  <title>Intern Project Evaluation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+    .card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      max-width: 700px;
+      margin: auto;
+    }
+    .btn {
+      padding: 10px 15px;
+      background: #3498db;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      margin: 5px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background: #2980b9;
+    }
+    .result {
+      margin-top: 20px;
+      background: #ecf0f1;
+      padding: 15px;
+      border-radius: 5px;
+    }
+    ul { padding-left: 20px; }
+    @media print {
+      .btn, input[type="file"] { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Intern Project Evaluation</h2>
+    <input type="file" id="zipFile" accept=".zip" />
+    <button class="btn" onclick="scanAnalyze()">Scan & Analyze</button>
 
-      <div id="result" class="result" style="display:none;">
-        <p><strong>Intern ID:</strong> <span id="internId"></span></p>
-        <p><strong>Name:</strong> <span id="internName"></span></p>
-        <p><strong>Domain:</strong> <span id="domain"></span></p>
-        <p><strong>Documentation Quality:</strong> <span id="docQuality"></span></p>
-        <p><strong>Extracted Files:</strong></p>
-        <ul id="fileList"></ul>
-      </div>
+    <div id="result" class="result" style="display: none;">
+      <p><strong>Intern ID:</strong> <span id="internId"></span></p>
+      <p><strong>Name:</strong> <span id="internName"></span></p>
+      <p><strong>Domain:</strong> <span id="domain"></span></p>
+      <p><strong>Documentation Quality:</strong> <span id="docQuality"></span></p>
+      <p><strong>Extracted Files:</strong></p>
+      <ul id="fileList"></ul>
+      <button class="btn" onclick="window.print()">Print Report</button>
     </div>
+  </div>
 
-    <script>
-      let internData = {};
+  <script>
+    async function scanAnalyze() {
+      const input = document.getElementById('zipFile');
+      if (!input.files.length) {
+        alert('Please select a ZIP file first.');
+        return;
+      }
 
-      document.getElementById("uploadForm").addEventListener("submit", function(e) {
-        e.preventDefault();
-        const fileInput = document.querySelector('input[name="zipFile"]');
-        const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('zipFile', input.files[0]);
 
-        if (!file) {
-          alert("Please select a ZIP file.");
-          return;
-        }
-
-        const fr = new FileReader();
-        fr.onload = function() {
-          const bytes = [...new Uint8Array(fr.result)];
-          google.script.run.withSuccessHandler(showResult).uploadZipFile({ zipFile: { bytes, name: file.name } });
-        };
-        fr.readAsArrayBuffer(file);
+      const response = await fetch('/.netlify/functions/analyze-zip', {
+        method: 'POST',
+        body: formData
       });
 
-      function showResult(data) {
-        internData = data;
-        document.getElementById("internId").innerText = data.internId || 'N/A';
-        document.getElementById("internName").innerText = data.internName || 'N/A';
-        document.getElementById("domain").innerText = data.domain || 'N/A';
-        document.getElementById("docQuality").innerText = data.docQuality || 'N/A';
-        document.getElementById("fileList").innerHTML = data.extractedFiles.map(f => `<li>${f}</li>`).join('');
-        document.getElementById("result").style.display = "block";
-      }
-
-      function saveDetails() {
-        if (!internData.internId) {
-          alert("Please scan and analyze a ZIP file first.");
-          return;
-        }
-        google.script.run.withSuccessHandler(() => {
-          alert("Details saved to Google Sheet.");
-        }).saveToSheet(internData);
-      }
-    </script>
-  </body>
+      const data = await response.json();
+      document.getElementById('internId').textContent = data.internId || 'N/A';
+      document.getElementById('internName').textContent = data.internName || 'N/A';
+      document.getElementById('domain').textContent = data.domain || 'N/A';
+      document.getElementById('docQuality').textContent = data.docQuality || 'N/A';
+      document.getElementById('fileList').innerHTML = data.extractedFiles.map(f => `<li>${f}</li>`).join('');
+      document.getElementById('result').style.display = 'block';
+    }
+  </script>
+</body>
 </html>
