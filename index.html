@@ -65,6 +65,8 @@
       <form id="uploadForm">
         <input type="file" name="zipFile" accept=".zip" required />
         <button class="btn" type="submit">Scan & Analyze</button>
+        <button class="btn" onclick="saveDetails()">Save Details to Google Sheet</button>
+        <button class="btn" onclick="window.print()">Print Report</button>
       </form>
 
       <div id="result" class="result" style="display:none;">
@@ -74,8 +76,6 @@
         <p><strong>Documentation Quality:</strong> <span id="docQuality"></span></p>
         <p><strong>Extracted Files:</strong></p>
         <ul id="fileList"></ul>
-        <button class="btn" onclick="saveDetails()">Save Details to Google Sheet</button>
-        <button class="btn" onclick="window.print()">Print Report</button>
       </div>
     </div>
 
