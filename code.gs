@@ -1,5 +1,5 @@
-var folderId = '1dCoA9a4Hvo0pi3KWz9nAH04wy3zJ343A'; // Replace with your Google Drive folder ID
-var geminiApiKey = 'AIzaSyDemXqxd-FSgbT8kOfa4Y5c4_eyMjfodCY'; // Replace with your Gemini API key
+var folderId = '1dCoA9a4Hvo0pi3KWz9nAH04wy3zJ343A'; // Replace with your Google Drive Folder ID
+var geminiApiKey = 'AIzaSyDemXqxd-FSgbT8kOfa4Y5c4_eyMjfodCY'; // Replace with your Gemini API Key
 var sheetName = 'Project Evaluation New App';
 
 function doGet() {
@@ -18,9 +18,7 @@ function uploadZipFile(formObject) {
     extractedFiles: []
   };
 
-  // Create subfolder
   var subfolder = DriveApp.getFolderById(folderId).createFolder(blob.getName().replace('.zip', ''));
-
   var combinedText = '';
 
   unzippedFiles.forEach(function(file) {
@@ -33,7 +31,6 @@ function uploadZipFile(formObject) {
     }
   });
 
-  // Use Gemini API for evaluation
   var analysis = callGeminiAPI(combinedText);
   details.internId = analysis.internId || '';
   details.internName = analysis.internName || '';
@@ -45,7 +42,6 @@ function uploadZipFile(formObject) {
 
 function callGeminiAPI(content) {
   var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=' + geminiApiKey;
-
   var payload = {
     contents: [{
       parts: [{
