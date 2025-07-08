@@ -3,8 +3,15 @@
   <head>
     <base target="_top">
     <style>
-      body { font-family: 'Segoe UI', sans-serif; background: #f9f9f9; padding: 20px; color: #333; }
-      h2 { color: #2c3e50; }
+      body {
+        font-family: 'Segoe UI', sans-serif;
+        background: #f9f9f9;
+        padding: 20px;
+        color: #333;
+      }
+      h2 {
+        color: #2c3e50;
+      }
       .card {
         background: white;
         padding: 20px;
@@ -22,7 +29,7 @@
         color: white;
         border: none;
         border-radius: 5px;
-        margin-right: 10px;
+        margin: 5px 10px 0 0;
         cursor: pointer;
       }
       .btn:hover {
@@ -104,6 +111,10 @@
       }
 
       function saveDetails() {
+        if (!internData.internId) {
+          alert("Please scan and analyze a ZIP file first.");
+          return;
+        }
         google.script.run.withSuccessHandler(() => {
           alert("Details saved to Google Sheet.");
         }).saveToSheet(internData);
