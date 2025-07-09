@@ -1,59 +1,65 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Project Evaluation</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; max-width: 700px; margin: auto; }
+    .result { white-space: pre-wrap; background: #f9f9f9; padding: 1rem; margin-top: 1rem; border: 1px solid #ccc; }
+    button { margin-right: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>Project Evaluation</h1>
 
-export default function ProjectEvaluationApp() {
-  const [file, setFile] = useState(null);
-  const [analysis, setAnalysis] = useState(null);
-  const [loading, setLoading] = useState(false);
+  <input type="file" id="zipFile" accept=".zip" />
+  <button onclick="analyzeZip()">Analyze</button>
 
-  const handleFileChange = (e) => setFile(e.target.files[0]);
+  <div id="result" class="result"></div>
 
-  const handleSubmit = async () => {
-    if (!file) return;
-    setLoading(true);
+  <div id="actions" style="margin-top: 1rem; display: none;">
+    <button onclick="saveToSheet()">Save to Google Sheet</button>
+    <button onclick="window.print()">Print</button>
+  </div>
 
-    const form = new FormData();
-    form.append('file', file);
+  <script>
+    let analysisResult = null;
 
-    const res = await fetch('/.netlify/functions/analyze', {
-      method: 'POST',
-      body: form,
-    });
+    async function analyzeZip() {
+      const fileInput = document.getElementById('zipFile');
+      const file = fileInput.files[0];
+      if (!file) {
+        alert('Please select a ZIP file.');
+        return;
+      }
 
-    const data = await res.json();
-    setAnalysis(data);
-    setLoading(false);
-  };
+      const formData = new FormData();
+      formData.append('file', file);
 
-  const handleSaveToSheet = async () => {
-    await fetch('/.netlify/functions/save-to-sheet', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ analysis }),
-    });
-  };
+      const res = await fetch('/.netlify/functions/analyze', {
+        method: 'POST',
+        body: formData,
+      });
 
-  const handlePrint = () => window.print();
+      const data = await res.json();
+      analysisResult = data;
 
-  return (
-    <div className="p-8 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Project Evaluation</h1>
-      <input type="file" accept=".zip" onChange={handleFileChange} className="mb-4" />
-      <Button onClick={handleSubmit} disabled={loading}>
-        {loading ? 'Analyzing...' : 'Analyze'}
-      </Button>
+      document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+      document.getElementById('actions').style.display = 'block';
+    }
 
-      {analysis && (
-        <div className="mt-6 bg-white p-4 rounded shadow">
-          <h2 className="text-lg font-semibold mb-2">Analysis</h2>
-          <pre>{JSON.stringify(analysis, null, 2)}</pre>
+    async function saveToSheet() {
+      if (!analysisResult) return;
 
-          <div className="mt-4 flex gap-3">
-            <Button onClick={handleSaveToSheet}>Save to Google Sheet</Button>
-            <Button onClick={handlePrint}>Print</Button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
+      await fetch('/.netlify/functions/save-to-sheet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ analysis: analysisResult }),
+      });
+
+      alert('Saved to Google Sheet!');
+    }
+  </script>
+</body>
+</html>
